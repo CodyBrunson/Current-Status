@@ -1,28 +1,15 @@
-import { Plugin,UIManager, UIManagerScope, ActionState, SettingsTypes } from '@highlite/plugin-api';
+import { Plugin,UIManager, UIManagerScope, ActionState } from '@highlite/plugin-api';
 
 // display the current status of the player
 class CurrentStatus extends Plugin {
     pluginName: string = 'Current Status';
-    author = 'Doodleman360';
+    author = 'Doodleman360'; //Taken over by Tomb
     private uiManager = new UIManager();
     private statusUI: HTMLElement | null = null;
     private statusValueUI: HTMLElement | null = null;
 
     constructor() {
         super();
-
-        this.settings.xPosition = {
-            text: 'X-Position',
-            type: SettingsTypes.range,
-            value: 6,
-            callback: () => {},
-        };
-        this.settings.yPosition = {
-            text: 'Y-Position',
-            type: SettingsTypes.range,
-            value: 235,
-            callback: () => {},
-        };
     }
 
     init(): void {
@@ -66,11 +53,8 @@ class CurrentStatus extends Plugin {
         this.statusUI.style.justifyContent = 'space-evenly';
         this.statusUI.style.width = 'auto';
         this.statusUI.style.padding = '10px';
-        const xPos = this.settings.xPosition.value as string;
-        const yPos = this.settings.yPosition.value as string;
-        this.statusUI.style.right = xPos + 'px';
-        this.statusUI.style.bottom = yPos + 'px';
-
+        this.statusUI.style.right = '235px';
+        this.statusUI.style.bottom = '110px';
         this.statusUI.classList.add('hs-menu', 'hs-game-menu');
 
         // Create Sub-Span Element
@@ -86,24 +70,6 @@ class CurrentStatus extends Plugin {
         this.statusUI.appendChild(statusSpan);
     }
 
-    // Logged In
-    SocketManager_loggedIn(): void {
-        if (!this.settings.enable.value) return;
-        if (this.statusUI) {
-            this.statusUI.remove();
-            this.statusUI = null;
-        }
-        this.createStatusUI();
-    }
-
-    // Logged Out
-    SocketManager_handleLoggedOut(): void {
-        if (this.statusUI) {
-            this.statusUI.remove();
-            this.statusUI = null;
-        }
-    }
-
     GameLoop_update(...args: any) {
         if (!this.settings.enable.value) {
             return;
@@ -112,10 +78,16 @@ class CurrentStatus extends Plugin {
             return;
         }
 
-        const xPos = this.settings.xPosition.value as string;
-        const yPos = this.settings.yPosition.value as string;
-        this.statusUI.style.right = xPos + 'px';
-        this.statusUI.style.bottom = yPos + 'px';
+        // Position adjustment like CoinCounter
+        if (
+            document.getElementsByClassName('hs-game-menu--opened').length === 0
+        ) {
+            this.statusUI.style.right = '6px';
+            this.statusUI.style.transition = 'all 0.1s ease-in-out';
+        } else {
+            this.statusUI.style.right = '235px';
+            this.statusUI.style.transition = 'none';
+        }
 
         const player = this.gameHooks.EntityManager.Instance._mainPlayer;
         if (!player) return;
